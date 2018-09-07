@@ -49,6 +49,7 @@ def wrapper_fourier_stack_paths(image_paths):
     return enhance_image_by_path(fourier_kernel_stack=all_kernels, input_image_path=image_paths)
 
 def enhance_image_by_path(fourier_kernel_stack, input_image_path):
+
     original_image = image_reader.image_read(input_image_path)
 
     # create square image with mask size
@@ -67,13 +68,16 @@ def enhance_image_by_path(fourier_kernel_stack, input_image_path):
     right_offset = left_offset + (0 if horizontal_offset % 2 == 0 else 1)
 
     fill_value = np.mean(original_image_resized)
+    print("FUILL", fill_value, type(fill_value))
+    sc = np.asscalar(np.array([fill_value]))
+    print("Sc", sc, type(sc))
     input_image = cv2.copyMakeBorder(src=original_image_resized,
                                      top=top_offset,
                                      bottom=bottom_offset,
                                      left=left_offset,
                                      right=right_offset,
                                      borderType=cv2.BORDER_CONSTANT,
-                                     value=np.asscalar(fill_value))
+                                     value=np.asscalar(np.array([fill_value])))
     input_image_fft = np.fft.rfft2(input_image)
 
     number_kernels = fourier_kernel_stack.shape[2]

@@ -78,7 +78,7 @@ class MaskStackCreator:
 
         angle_steps = range(0, 180, angle_step)
         # pool = multiprocessing.Pool()
-        result = map(functools.partial(self.rotate_and_fft, mask), angle_steps)
+        result = list(map(functools.partial(self.rotate_and_fft, mask), angle_steps))
         self._mask_stack = np.asarray(result)
         result_fft = np.fft.rfft2(self._mask_stack,axes=(-2,-1))
 

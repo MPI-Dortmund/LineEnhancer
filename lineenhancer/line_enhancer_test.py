@@ -66,7 +66,7 @@ def _main_():
     else:
         sys.exit("No input is given")
     mask_size = args.downsamplesize
-    filament_width = args.filamentwidth
+    filament_width = args.linewidth
     mask_width = args.maskwidth
     angleStep = args.angle_step
     example = image_reader.image_read(example_path)
@@ -95,8 +95,8 @@ def _main_():
     start = time.time()
     enhanced_images = line_enhancer.enhance_images(example_paths, mask_creator)
     end = time.time()
-    print "Enhancement of 12 images"
-    print "Enhancement time per image (first run)", (end - start) / 12
+    print("Enhancement of 12 images")
+    print("Enhancement time per image (first run)", (end - start) / 12)
 
     '''
     PLOT RESULT
@@ -112,6 +112,8 @@ def _main_():
     plt.imshow(mask_creator.get_mask_stack()[23])
 
     plt.show()
+
+    np.savetxt("/home/twagner/3200_enhanced.txt",enhanced_images[0]["max_angle"])
 
 
 if __name__ == '__main__':
