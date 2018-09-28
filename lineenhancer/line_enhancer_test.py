@@ -112,6 +112,7 @@ def _main_():
     plt.imshow(mask_creator.get_mask_stack()[23])
 
     plt.show()
+    #np.savetxt("/home/twagner/angle_image.txt",enhanced_images[0]["max_angle"])
 
     np.savetxt("/home/twagner/3200_enhanced.txt",enhanced_images[0]["max_angle"])
 
