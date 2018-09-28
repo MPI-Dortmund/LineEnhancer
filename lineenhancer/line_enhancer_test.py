@@ -66,7 +66,7 @@ def _main_():
     else:
         sys.exit("No input is given")
     mask_size = args.downsamplesize
-    filament_width = args.filamentwidth
+    filament_width = args.linewidth
     mask_width = args.maskwidth
     angleStep = args.angle_step
     example = image_reader.image_read(example_path)
@@ -112,6 +112,7 @@ def _main_():
     plt.imshow(mask_creator.get_mask_stack()[23])
 
     plt.show()
+    #np.savetxt("/home/twagner/angle_image.txt",enhanced_images[0]["max_angle"])
 
 
 if __name__ == '__main__':
