@@ -2,7 +2,7 @@ import numpy as np
 import sys
 import multiprocessing
 import cv2
-import image_reader
+from . import image_reader
 
 
 
@@ -100,8 +100,6 @@ def enhance_image_by_path(fourier_kernel_stack, input_image_path):
 def enhance_image(fourier_kernel_stack, input_image):
     input_image_fft = np.fft.rfft2(input_image)
     number_kernels = fourier_kernel_stack.shape[2]
-
-
     result = convolve(input_image_fft, fourier_kernel_stack[:, :, 0])
     enhanced_images = np.empty((result.shape[0], result.shape[1], number_kernels))
     enhanced_images[:, :, 0] = result

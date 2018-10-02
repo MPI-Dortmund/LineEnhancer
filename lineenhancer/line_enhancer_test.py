@@ -1,12 +1,12 @@
 import argparse
 import matplotlib.pyplot as plt
-from maskstackcreator import MaskStackCreator
+from .maskstackcreator import MaskStackCreator
 import scipy.misc as sp
 import time
 import numpy as np
 import sys
-import image_reader
-import line_enhancer
+from . import image_reader
+from . import line_enhancer
 
 argparser = argparse.ArgumentParser(
     description='Enhances line images',
