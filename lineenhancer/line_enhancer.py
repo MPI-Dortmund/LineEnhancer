@@ -20,6 +20,7 @@ def enhance_images(input_images, maskcreator):
     all_kernels = fft_masks
     pool = multiprocessing.Pool()
     if is_path_list:
+        #enhanced_images = enhance_image_by_path(fourier_kernel_stack=all_kernels, input_image_path=input_images[0])
         enhanced_images = pool.map(wrapper_fourier_stack_paths, input_images)
     else:
         enhanced_images = pool.map(wrapper_fourier_stack, input_images)
@@ -59,23 +60,21 @@ def enhance_image_by_path(fourier_kernel_stack, input_image_path):
     scaling = 1.0*fourier_kernel_stack.shape[0]/max_dim
     original_image_resized = cv2.resize(original_image, dsize=(0,0), fx=scaling, fy=scaling)
     vertical_offset = (fourier_kernel_stack.shape[0]-original_image_resized.shape[0])
-    top_offset = vertical_offset/2
+    top_offset = int(vertical_offset/2)
     bottom_offset = top_offset + (0 if vertical_offset % 2 == 0 else 1)
 
     horizontal_offset = (fourier_kernel_stack.shape[0]-original_image_resized.shape[1])
-    left_offset = horizontal_offset/2
+    left_offset = int(horizontal_offset/2)
     right_offset = left_offset + (0 if horizontal_offset % 2 == 0 else 1)
     fill_value = np.mean(original_image_resized)
-    print("FUILL", fill_value, type(fill_value))
-    sc = np.asscalar(np.array([fill_value]))
-    print("Sc", sc, type(sc))
+   # sc = np.asscalar(np.array([fill_value]))
     input_image = cv2.copyMakeBorder(src=original_image_resized,
                                      top=top_offset,
                                      bottom=bottom_offset,
                                      left=left_offset,
                                      right=right_offset,
-                                     borderType=cv2.BORDER_CONSTANT,
-                                     value=np.asscalar(np.array([fill_value])))
+                                     borderType=cv2.BORDER_REPLICATE)
+                                    # value=np.asscalar(np.array([fill_value])))
     input_image_fft = np.fft.rfft2(input_image)
 
     number_kernels = fourier_kernel_stack.shape[2]

@@ -1,12 +1,12 @@
 import argparse
 import matplotlib.pyplot as plt
-from .maskstackcreator import MaskStackCreator
+from lineenhancer.maskstackcreator import MaskStackCreator
 import scipy.misc as sp
 import time
 import numpy as np
 import sys
-from . import image_reader
-from . import line_enhancer
+from lineenhancer import image_reader
+from lineenhancer import line_enhancer
 
 argparser = argparse.ArgumentParser(
     description='Enhances line images',
@@ -81,7 +81,7 @@ def _main_():
     '''
     CREATE EXAMPLE WITH PATHS
     '''
-    example_paths = [example_path]*12
+    example_paths = [example_path]*1
 
     '''
     INIT MASK CREATOR
