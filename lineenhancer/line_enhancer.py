@@ -1,9 +1,8 @@
 import numpy as np
 import sys
 import multiprocessing
-import cv2
 from . import image_reader
-
+from PIL import Image
 
 
 
@@ -58,7 +57,10 @@ def enhance_image_by_path(fourier_kernel_stack, input_image_path):
     width = original_image.shape[1]
     max_dim = height if height > width else width
     scaling = 1.0*fourier_kernel_stack.shape[0]/max_dim
-    original_image_resized = cv2.resize(original_image, dsize=(0,0), fx=scaling, fy=scaling)
+
+    #original_image_resized = cv2.resize(original_image, dsize=(0,0), fx=scaling, fy=scaling)
+    original_image_resized = np.array(Image.fromarray(original_image).resize((int(original_image.shape[1]*scaling), int(original_image.shape[0]*scaling)), resample=Image.BILINEAR))
+
     vertical_offset = (fourier_kernel_stack.shape[0]-original_image_resized.shape[0])
     top_offset = int(vertical_offset/2)
     bottom_offset = top_offset + (0 if vertical_offset % 2 == 0 else 1)
@@ -68,6 +70,7 @@ def enhance_image_by_path(fourier_kernel_stack, input_image_path):
     right_offset = left_offset + (0 if horizontal_offset % 2 == 0 else 1)
     fill_value = np.mean(original_image_resized)
    # sc = np.asscalar(np.array([fill_value]))
+    '''
     input_image = cv2.copyMakeBorder(src=original_image_resized,
                                      top=top_offset,
                                      bottom=bottom_offset,
@@ -75,6 +78,8 @@ def enhance_image_by_path(fourier_kernel_stack, input_image_path):
                                      right=right_offset,
                                      borderType=cv2.BORDER_REPLICATE)
                                     # value=np.asscalar(np.array([fill_value])))
+    '''
+    input_image = np.pad(original_image_resized, pad_width=((top_offset,bottom_offset),(left_offset,right_offset)),mode="reflect")
     input_image_fft = np.fft.rfft2(input_image)
 
     number_kernels = fourier_kernel_stack.shape[2]
