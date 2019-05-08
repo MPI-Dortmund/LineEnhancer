@@ -21,17 +21,20 @@ def image_read(image_path, region=None):
 
         img = read_mrc(image_path)
         img = np.squeeze(img)
-        if np.issubdtype(img.dtype, np.integer):
-            img = img.astype(dtype=np.uint8)
+
     else:
         raise Exception("Not supported image format: " + image_path)
-
     # OpenCV has problems with some datatypes
     if np.issubdtype(img.dtype, np.uint32):
         img = img.astype(dtype=np.float64)
 
     if np.issubdtype(img.dtype, np.float16):
         img = img.astype(dtype=np.float32)
+
+    if np.issubdtype(img.dtype, np.uint16):
+        img = img.astype(dtype=np.float32)
+
+    #img = np.max(img) - 1 - img + np.min(img)
 
     if region is not None:
         return img[region[1], region[0]]
