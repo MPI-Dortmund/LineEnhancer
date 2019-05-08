@@ -73,6 +73,9 @@ def _main_():
     '''
     CREATE EXAMPLE: RESIZE IMAGE, REPEAT IT 12 TIMES (simulates 12 input images)
     '''
+    rescale_factor = 1024.0 / max(example.shape[0], example.shape[1])
+    filament_width = filament_width*rescale_factor
+    print("Used FW:", filament_width)
     example = sp.imresize(example, size=(args.downsamplesize, args.downsamplesize))
     example = example
     examples = np.repeat(example[:, :, np.newaxis], 12, axis=2)
@@ -114,7 +117,7 @@ def _main_():
     plt.show()
     #np.savetxt("/home/twagner/angle_image.txt",enhanced_images[0]["max_angle"])
 
-    np.savetxt("/home/twagner/3200_enhanced.txt",enhanced_images[0]["max_angle"])
+    #np.savetxt("/home/twagner/3719.txt",enhanced_images[0]["max_angle"])
 
 
 if __name__ == '__main__':

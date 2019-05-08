@@ -18,5 +18,6 @@ setup(
     description='Enhancing line images',
     entry_points={
         'console_scripts': [
-            'line_enhancer.py = lineenhancer.line_enhancer:_main_']},
+            'line_enhancer.py = lineenhancer.line_enhancer:_main_',
+            'line_enhancer_test.py = lineenhancer.line_enhancer_test:_main_']},
 )

@@ -5,8 +5,6 @@ from . import image_reader
 from PIL import Image
 
 
-
-
 def enhance_images(input_images, maskcreator):
     is_path_list = isinstance(input_images,list)
 
@@ -51,7 +49,6 @@ def wrapper_fourier_stack_paths(image_paths):
 def enhance_image_by_path(fourier_kernel_stack, input_image_path):
 
     original_image = image_reader.image_read(input_image_path)
-
     # create square image with mask size
     height = original_image.shape[0]
     width = original_image.shape[1]
@@ -68,7 +65,7 @@ def enhance_image_by_path(fourier_kernel_stack, input_image_path):
     horizontal_offset = (fourier_kernel_stack.shape[0]-original_image_resized.shape[1])
     left_offset = int(horizontal_offset/2)
     right_offset = left_offset + (0 if horizontal_offset % 2 == 0 else 1)
-    fill_value = np.mean(original_image_resized)
+   # fill_value = np.mean(original_image_resized)
    # sc = np.asscalar(np.array([fill_value]))
     '''
     input_image = cv2.copyMakeBorder(src=original_image_resized,
