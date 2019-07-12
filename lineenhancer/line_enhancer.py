@@ -28,6 +28,36 @@ def enhance_images(input_images, maskcreator):
 
     return enhanced_images
 
+def enhance_images_to_dir(input_images, maskcreator, outdir,subset_size=12):
+    input_images_subsets = [
+        input_images[i: i + subset_size]
+        for i in range(0, len(input_images), subset_size)
+    ]
+    import os
+    import mrcfile
+    out_max_dir = os.path.join(outdir,"max_dir")
+    out_max_val = os.path.join(outdir, "max_val")
+    os.makedirs(out_max_dir)
+    os.makedirs(out_max_val)
+    results = []
+    for subset in input_images_subsets:
+        enhanced_imags = enhance_images(subset, maskcreator)
+
+        # Write them to disk
+        for i, img in enumerate(enhanced_imags):
+            filename_no_ext = os.path.splitext(os.path.basename(subset[i]))[0]
+            img_direction_path = os.path.join(out_max_dir,filename_no_ext+".mrc")
+            img_val_path = os.path.join(out_max_val, filename_no_ext + ".mrc")
+            with mrcfile.new(img_direction_path) as mrc:
+                mrc.set_data(img["max_angle"], dtype=np.float32)
+            with mrcfile.new(img_val_path) as mrc:
+                mrc.set_data(img["max_value"], dtype=np.float32)
+
+            results.append((img_val_path,img_direction_path))
+
+    return results
+
+
 def convolve(fft_image, fft_mask):
 
    # fft_mask = np.array(fft_mask)

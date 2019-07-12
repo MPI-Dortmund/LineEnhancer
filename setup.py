@@ -2,7 +2,7 @@ from setuptools import setup
 # Create new package with python setup.py sdist
 setup(
     name='lineenhancer',
-    version='1.0.6',
+    version='1.0.7rc0',
 
     packages=['lineenhancer'],
     license='MIT',
