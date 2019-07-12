@@ -10,7 +10,7 @@ setup(
     url='https://github.com/MPI-Dortmund/LineEnhancer',
     download_url='https://github.com/MPI-Dortmund/LineEnhancer/releases/download/1.0.3/lineenhancer-1.0.3.tar.gz',
     install_requires=[
-        "numpy >= 1.13.3",
+        "numpy == 1.15.4",
         "mrcfile",
         "scipy"
     ],
