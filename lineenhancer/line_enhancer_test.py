@@ -7,6 +7,8 @@ import numpy as np
 import sys
 from lineenhancer import image_reader
 from lineenhancer import line_enhancer
+from PIL import Image
+
 
 argparser = argparse.ArgumentParser(
     description='Enhances line images',
@@ -73,13 +75,10 @@ def _main_():
     '''
     CREATE EXAMPLE: RESIZE IMAGE, REPEAT IT 12 TIMES (simulates 12 input images)
     '''
+
     rescale_factor = 1024.0 / max(example.shape[0], example.shape[1])
     filament_width = filament_width*rescale_factor
     print("Used FW:", filament_width)
-    example = sp.imresize(example, size=(args.downsamplesize, args.downsamplesize))
-    example = example
-    examples = np.repeat(example[:, :, np.newaxis], 12, axis=2)
-    examples = np.moveaxis(examples, 2, 0)
 
     '''
     CREATE EXAMPLE WITH PATHS
