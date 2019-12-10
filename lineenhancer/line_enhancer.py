@@ -5,7 +5,7 @@ from . import image_reader
 from PIL import Image
 
 
-def enhance_images(input_images, maskcreator):
+def enhance_images(input_images, maskcreator, num_cpus = -1):
     is_path_list = isinstance(input_images,list)
 
     if not is_path_list:
@@ -13,14 +13,18 @@ def enhance_images(input_images, maskcreator):
             sys.exit("Mask and image dimensions are different. Stop")
 
     fft_masks = maskcreator.get_mask_fft_stack()
-    global all_kernels
-    all_kernels = fft_masks
-    pool = multiprocessing.Pool()
+    #global all_kernels
+    #all_kernels = fft_masks
+    input_img_and_kernel = [(img, fft_masks) for img in input_images]
+    if num_cpus > -1:
+        pool = multiprocessing.Pool(processes=num_cpus)
+    else:
+        pool = multiprocessing.Pool()
     if is_path_list:
         #enhanced_images = enhance_image_by_path(fourier_kernel_stack=all_kernels, input_image_path=input_images[0])
-        enhanced_images = pool.map(wrapper_fourier_stack_paths, input_images)
+        enhanced_images = pool.map(wrapper_fourier_stack_paths, input_img_and_kernel)
     else:
-        enhanced_images = pool.map(wrapper_fourier_stack, input_images)
+        enhanced_images = pool.map(wrapper_fourier_stack, input_img_and_kernel)
     pool.close()
     pool.join()
     for img in enhanced_images:
@@ -37,8 +41,11 @@ def enhance_images_to_dir(input_images, maskcreator, outdir,subset_size=12):
     import mrcfile
     out_max_dir = os.path.join(outdir,"max_dir")
     out_max_val = os.path.join(outdir, "max_val")
-    os.makedirs(out_max_dir)
-    os.makedirs(out_max_val)
+    try:
+        os.makedirs(out_max_dir)
+        os.makedirs(out_max_val)
+    except FileExistsError:
+        pass
     results = []
     for subset in input_images_subsets:
         enhanced_imags = enhance_images(subset, maskcreator)
@@ -49,9 +56,9 @@ def enhance_images_to_dir(input_images, maskcreator, outdir,subset_size=12):
             img_direction_path = os.path.join(out_max_dir,filename_no_ext+".mrc")
             img_val_path = os.path.join(out_max_val, filename_no_ext + ".mrc")
             with mrcfile.new(img_direction_path) as mrc:
-                mrc.set_data(img["max_angle"], dtype=np.float32)
+                mrc.set_data(img["max_angle"].astype(np.float32))
             with mrcfile.new(img_val_path) as mrc:
-                mrc.set_data(img["max_value"], dtype=np.float32)
+                mrc.set_data(np.flipud(img["max_value"].astype(np.float32)))
 
             results.append((img_val_path,img_direction_path))
 
@@ -69,12 +76,13 @@ def convolve(fft_image, fft_mask):
 
     return result
 
-all_kernels = None
-def wrapper_fourier_stack(image):
-    return enhance_image(fourier_kernel_stack=all_kernels, input_image=image)
+def wrapper_fourier_stack(input_img_and_kernel):
+    img_paths, kernels = input_img_and_kernel
+    return enhance_image(fourier_kernel_stack=kernels, input_image=img_paths)
 
-def wrapper_fourier_stack_paths(image_paths):
-    return enhance_image_by_path(fourier_kernel_stack=all_kernels, input_image_path=image_paths)
+def wrapper_fourier_stack_paths(input_img_and_kernel):
+    img_paths, kernels = input_img_and_kernel
+    return enhance_image_by_path(fourier_kernel_stack=kernels, input_image_path=img_paths)
 
 def enhance_image_by_path(fourier_kernel_stack, input_image_path):
 

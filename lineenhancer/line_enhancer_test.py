@@ -72,11 +72,12 @@ def _main_():
     mask_width = args.maskwidth
     angleStep = args.angle_step
     example = image_reader.image_read(example_path)
+
     '''
     CREATE EXAMPLE: RESIZE IMAGE, REPEAT IT 12 TIMES (simulates 12 input images)
     '''
 
-    rescale_factor = 1024.0 / max(example.shape[0], example.shape[1])
+    rescale_factor = mask_size / max(example.shape[0], example.shape[1])
     filament_width = filament_width*rescale_factor
     print("Used FW:", filament_width)
 
@@ -95,7 +96,7 @@ def _main_():
     DO ENHANCEMENT
     '''
     start = time.time()
-    enhanced_images = line_enhancer.enhance_images(example_paths, mask_creator)
+    enhanced_images = line_enhancer.enhance_images_to_dir(example_paths, mask_creator,"testout")
     end = time.time()
     print("Enhancement of 12 images")
     print("Enhancement time per image (first run)", (end - start) / 12)
