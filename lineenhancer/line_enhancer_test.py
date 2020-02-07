@@ -84,7 +84,7 @@ def _main_():
     '''
     CREATE EXAMPLE WITH PATHS
     '''
-    example_paths = [example_path]*1
+    example_paths = [example_path]
 
     '''
     INIT MASK CREATOR
@@ -98,11 +98,10 @@ def _main_():
     start = time.time()
     enhanced_images = line_enhancer.enhance_images_to_dir(example_paths, mask_creator,"testout")
     end = time.time()
-    print("Enhancement of 12 images")
-    print("Enhancement time per image (first run)", (end - start) / 12)
 
     '''
     PLOT RESULT
+    '''
     '''
     fig = plt.figure(figsize=(2, 2))
     fig.add_subplot(2,2,1)
@@ -115,6 +114,7 @@ def _main_():
     plt.imshow(mask_creator.get_mask_stack()[23])
 
     plt.show()
+    '''
     #np.savetxt("/home/twagner/angle_image.txt",enhanced_images[0]["max_angle"])
 
     #np.savetxt("/home/twagner/3719.txt",enhanced_images[0]["max_angle"])

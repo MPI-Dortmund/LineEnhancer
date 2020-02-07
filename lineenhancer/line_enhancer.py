@@ -41,24 +41,30 @@ def enhance_images_to_dir(input_images, maskcreator, outdir,subset_size=12):
     import mrcfile
     out_max_dir = os.path.join(outdir,"max_dir")
     out_max_val = os.path.join(outdir, "max_val")
+    out_mask = os.path.join(outdir, "mask")
     try:
         os.makedirs(out_max_dir)
         os.makedirs(out_max_val)
+        os.makedirs(out_mask)
     except FileExistsError:
         pass
     results = []
     for subset in input_images_subsets:
         enhanced_imags = enhance_images(subset, maskcreator)
-
+        mstack = maskcreator.get_mask_stack()
         # Write them to disk
         for i, img in enumerate(enhanced_imags):
             filename_no_ext = os.path.splitext(os.path.basename(subset[i]))[0]
             img_direction_path = os.path.join(out_max_dir,filename_no_ext+".mrc")
             img_val_path = os.path.join(out_max_val, filename_no_ext + ".mrc")
+            out_mask_path = os.path.join(out_mask, filename_no_ext + ".mrc")
+
             with mrcfile.new(img_direction_path) as mrc:
-                mrc.set_data(img["max_angle"].astype(np.float32))
+                mrc.set_data(np.flipud(img["max_angle"].astype(np.float32)))
             with mrcfile.new(img_val_path) as mrc:
                 mrc.set_data(np.flipud(img["max_value"].astype(np.float32)))
+            with mrcfile.new(out_mask_path) as mrc:
+                mrc.set_data(mstack[20].astype(np.float32))
 
             results.append((img_val_path,img_direction_path))
 
