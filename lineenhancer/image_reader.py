@@ -10,9 +10,11 @@ def image_read(image_path, region=None):
             raise Exception("Not supported image format. Movie files are not supported")
             return None
         img = imageio.imread(image_path, pilmode="L", as_gray=True)
+        img = np.squeeze(img)
         img = img.astype(np.uint8)
     elif image_path.endswith(("tiff", "tif")):
         img = imageio.imread(image_path)
+        img = np.squeeze(img)
        # img = np.flipud(img)
     elif image_path.endswith("mrc"):
         if not is_single_channel(image_path):
@@ -20,7 +22,7 @@ def image_read(image_path, region=None):
             return None
 
         img = read_mrc(image_path)
-        img = np.squeeze(img)
+
 
     else:
         raise Exception("Not supported image format: " + image_path)
@@ -56,6 +58,7 @@ def is_single_channel(image_path):
 def read_mrc(image_path):
     with mrcfile.open(image_path, permissive=True) as mrc:
         mrc_image_data = np.copy(mrc.data)
+    mrc_image_data = np.squeeze(mrc_image_data)
     mrc_image_data = np.flipud(mrc_image_data)
 
     return mrc_image_data
