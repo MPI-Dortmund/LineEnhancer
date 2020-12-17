@@ -2,7 +2,7 @@ from setuptools import setup
 # Create new package with python setup.py sdist
 setup(
     name='lineenhancer',
-    version='1.0.9',
+    version='1.0.9.dev1',
 
     packages=['lineenhancer'],
     license='MIT',
@@ -12,7 +12,8 @@ setup(
     install_requires=[
         "numpy",
         "mrcfile",
-        "scipy"
+        "scipy",
+        "cryolo"
     ],
     author_email='thorsten.wagner@mpi-dortmund.mpg.de',
     description='Enhancing line images',

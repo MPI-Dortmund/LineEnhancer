@@ -55,6 +55,22 @@ def is_single_channel(image_path):
 
     return True
 
+def get_num_frames(image_path, channel_index = 0):
+    if image_path.endswith(("jpg", "png", "tiff", "tif")):
+        im = Image.open(image_path)
+        if len(im.size) == 2:
+            return 1
+        if len(im.size) == 3:
+            return im.size[channel_index]
+
+    if image_path.endswith(("mrc", "mrcs", "rec")):
+        with mrcfile.mmap(image_path, permissive=True, mode="r") as mrc:
+            if len(mrc.data.shape) == 2:
+                return 1
+            if len(mrc.data.shape) == 3:
+                return mrc.data.shape[channel_index]
+
+
 def read_mrc(image_path):
     with mrcfile.open(image_path, permissive=True) as mrc:
         mrc_image_data = np.copy(mrc.data)

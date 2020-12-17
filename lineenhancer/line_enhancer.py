@@ -1,7 +1,7 @@
 import numpy as np
 import sys
 import multiprocessing
-from . import image_reader
+from cryolo import imagereader
 from PIL import Image
 
 
@@ -15,7 +15,11 @@ def enhance_images(input_images, maskcreator, num_cpus = -1):
     fft_masks = maskcreator.get_mask_fft_stack()
     #global all_kernels
     #all_kernels = fft_masks
-    input_img_and_kernel = [(img, fft_masks) for img in input_images]
+    input_img_and_kernel= []
+    for img in input_images:
+        for frame in range(imagereader.get_num_frames(img)):
+            input_img_and_kernel.append((img, fft_masks, frame))
+
     if num_cpus > -1:
         pool = multiprocessing.Pool(processes=num_cpus)
     else:
@@ -25,12 +29,24 @@ def enhance_images(input_images, maskcreator, num_cpus = -1):
         enhanced_images = pool.map(wrapper_fourier_stack_paths, input_img_and_kernel)
     else:
         enhanced_images = pool.map(wrapper_fourier_stack, input_img_and_kernel)
+
     pool.close()
     pool.join()
+    enhanced_images_list = []
+    for img in input_images:
+        enhanced_frames_list = []
+
+        for input_index, input_tuble in enumerate(input_img_and_kernel):
+            img_input, _, frame = input_tuble
+            if img_input == img:
+                enhanced_frames_list.append(enhanced_images[input_index])
+        enhanced_images_list.append(enhanced_frames_list)
+
+    print("Enhanced images have size:", len(enhanced_images_list))
     for img in enhanced_images:
         img["max_angle"] = img["max_angle"]*maskcreator.get_angle_step()
 
-    return enhanced_images
+    return enhanced_images_list
 
 def enhance_images_to_dir(input_images, maskcreator, outdir,subset_size=12):
     input_images_subsets = [
@@ -50,23 +66,27 @@ def enhance_images_to_dir(input_images, maskcreator, outdir,subset_size=12):
         pass
     results = []
     for subset in input_images_subsets:
-        enhanced_imags = enhance_images(subset, maskcreator)
+        enhanced_imags_list = enhance_images(subset, maskcreator)
         mstack = maskcreator.get_mask_stack()
         # Write them to disk
-        for i, img in enumerate(enhanced_imags):
-            filename_no_ext = os.path.splitext(os.path.basename(subset[i]))[0]
-            img_direction_path = os.path.join(out_max_dir,filename_no_ext+".mrc")
-            img_val_path = os.path.join(out_max_val, filename_no_ext + ".mrc")
-            out_mask_path = os.path.join(out_mask, filename_no_ext + ".mrc")
+        for i, enhanced_imags in enumerate(enhanced_imags_list):
+            for framei, framedict in enumerate(enhanced_imags):
+                filename_no_ext = os.path.splitext(os.path.basename(subset[i]))[0]
+                if len(enhanced_imags) > 1:
+                    filename_no_ext = filename_no_ext + "_"+str(i).zfill(4)
+                print("write", filename_no_ext)
+                img_direction_path = os.path.join(out_max_dir,filename_no_ext+".mrc")
+                img_val_path = os.path.join(out_max_val, filename_no_ext + ".mrc")
+                out_mask_path = os.path.join(out_mask, filename_no_ext + ".mrc")
 
-            with mrcfile.new(img_direction_path) as mrc:
-                mrc.set_data(np.flipud(img["max_angle"].astype(np.float32)))
-            with mrcfile.new(img_val_path) as mrc:
-                mrc.set_data(np.flipud(img["max_value"].astype(np.float32)))
-            with mrcfile.new(out_mask_path) as mrc:
-                mrc.set_data(mstack[20].astype(np.float32))
+                with mrcfile.new(img_direction_path) as mrc:
+                    mrc.set_data(np.flipud(framedict["max_angle"].astype(np.float32)))
+                with mrcfile.new(img_val_path) as mrc:
+                    mrc.set_data(np.flipud(framedict["max_value"].astype(np.float32)))
+                with mrcfile.new(out_mask_path) as mrc:
+                    mrc.set_data(mstack[20].astype(np.float32))
 
-            results.append((img_val_path,img_direction_path))
+                results.append((img_val_path,img_direction_path))
 
     return results
 
@@ -87,12 +107,15 @@ def wrapper_fourier_stack(input_img_and_kernel):
     return enhance_image(fourier_kernel_stack=kernels, input_image=img_paths)
 
 def wrapper_fourier_stack_paths(input_img_and_kernel):
-    img_paths, kernels = input_img_and_kernel
-    return enhance_image_by_path(fourier_kernel_stack=kernels, input_image_path=img_paths)
+    img_paths, kernels, slice = input_img_and_kernel
+    return enhance_image_by_path(fourier_kernel_stack=kernels, input_image_path=img_paths, slice=slice)
 
-def enhance_image_by_path(fourier_kernel_stack, input_image_path):
-
-    original_image = image_reader.image_read(input_image_path)
+def enhance_image_by_path(fourier_kernel_stack, input_image_path, slice=0):
+    image = imagereader.image_read(input_image_path, use_mmap=True)
+    if len(image.shape) == 3:
+        original_image = image[slice, :, :]
+    else:
+        original_image = image
     # create square image with mask size
     height = original_image.shape[0]
     width = original_image.shape[1]

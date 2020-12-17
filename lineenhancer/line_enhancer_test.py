@@ -8,7 +8,7 @@ import sys
 from lineenhancer import image_reader
 from lineenhancer import line_enhancer
 from PIL import Image
-
+import glob
 
 argparser = argparse.ArgumentParser(
     description='Enhances line images',
@@ -31,7 +31,7 @@ argparser.add_argument(
     '--linewidth',
     default=50,
     type=int,
-    help='line width with after downsampling')
+    help='line width with before downsampling')
 
 argparser.add_argument(
     '-m',
@@ -64,14 +64,14 @@ def _main_():
     '''
 
     if args.input is not None:
-        example_path = args.input
+        example_paths = glob.glob(args.input)
     else:
         sys.exit("No input is given")
     mask_size = args.downsamplesize
     filament_width = args.linewidth
     mask_width = args.maskwidth
     angleStep = args.angle_step
-    example = image_reader.image_read(example_path)
+    example = image_reader.image_read(example_paths[0])
 
     '''
     CREATE EXAMPLE: RESIZE IMAGE, REPEAT IT 12 TIMES (simulates 12 input images)
@@ -84,7 +84,7 @@ def _main_():
     '''
     CREATE EXAMPLE WITH PATHS
     '''
-    example_paths = [example_path]
+    #example_paths = [example_path]
 
     '''
     INIT MASK CREATOR
