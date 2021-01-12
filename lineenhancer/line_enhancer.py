@@ -42,7 +42,6 @@ def enhance_images(input_images, maskcreator, num_cpus = -1):
                 enhanced_frames_list.append(enhanced_images[input_index])
         enhanced_images_list.append(enhanced_frames_list)
 
-    print("Enhanced images have size:", len(enhanced_images_list))
     for img in enhanced_images:
         img["max_angle"] = img["max_angle"]*maskcreator.get_angle_step()
 
