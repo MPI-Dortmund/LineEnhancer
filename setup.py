@@ -13,7 +13,8 @@ setup(
         "numpy",
         "mrcfile",
         "scipy",
-        "cryolo"
+        "imageio",
+        "Pillow"
     ],
     author_email='thorsten.wagner@mpi-dortmund.mpg.de',
     description='Enhancing line images',

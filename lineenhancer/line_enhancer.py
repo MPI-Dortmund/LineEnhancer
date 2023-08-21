@@ -1,7 +1,7 @@
 import numpy as np
 import sys
 import multiprocessing
-from cryolo import imagereader
+import image_reader as imagereader
 from PIL import Image
 
 
