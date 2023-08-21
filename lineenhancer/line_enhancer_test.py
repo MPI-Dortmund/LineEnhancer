@@ -102,7 +102,7 @@ def _main_():
     '''
     PLOT RESULT
     '''
-    '''
+
     fig = plt.figure(figsize=(2, 2))
     fig.add_subplot(2,2,1)
     plt.imshow(enhanced_images[0]["max_value"])
@@ -114,7 +114,7 @@ def _main_():
     plt.imshow(mask_creator.get_mask_stack()[23])
 
     plt.show()
-    '''
+
     #np.savetxt("/home/twagner/angle_image.txt",enhanced_images[0]["max_angle"])
 
     #np.savetxt("/home/twagner/3719.txt",enhanced_images[0]["max_angle"])
